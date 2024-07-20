@@ -1,13 +1,4 @@
 import { NextPage } from 'next';
-import * as z from 'zod';
-
-const schema = z.object({
-  name: z.string().min(1, '名前を入力してください').max(50, '50文字以内で入力してください'),
-  email: z.string().email('正しいメールアドレスを入力してください'),
-  password: z.string().min(8, 'パスワードは、8文字以上で入力してください').regex(/^(?=.*[A-Z])(?=.*[a-z])(?=.*[\d!@#$%^&*()-_=+{};:',<.>/?[\]\\|]).+$/, '半角英数記号で入力し少なくとも1文字以上の大文字・小文字・記号を含めてください'),
-});
-
-type FromInput = z.infer<typeof schema>;
 
 import Button from '@/components/common/parts/Button';
 import Container from '@/components/common/parts/Container';
