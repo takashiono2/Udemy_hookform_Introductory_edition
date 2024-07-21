@@ -1,5 +1,10 @@
 import { NextPage } from 'next';
+import { useForm } from 'react-hook-form';
 import * as z from 'zod';
+
+import Button from '@/components/common/parts/Button';
+import Container from '@/components/common/parts/Container';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 const schema = z.object({
   name: z.string().min(1, '名前を入力してください').max(50, '50文字以内で入力してください'),
@@ -7,14 +12,23 @@ const schema = z.object({
   password: z.string().min(8, 'パスワードは、8文字以上で入力してください').regex(/^(?=.*[A-Z])(?=.*[a-z])(?=.*[\d!@#$%^&*()-_=+{};:',<.>/?[\]\\|]).+$/, '半角英数記号で入力し少なくとも1文字以上の大文字・小文字・記号を含めてください'),
 });
 
-type FromInput = z.infer<typeof schema>;
+type FormInput = z.infer<typeof schema>;
 
-import Button from '@/components/common/parts/Button';
-import Container from '@/components/common/parts/Container';
-import { usePractice02 } from '@/hooks/form/usePractice02';
+const DEFAULT_FROM_INPUT: FormInput = {
+  name:'',
+  email:'',
+  password:'',
+};
 
 const Page: NextPage = () => {
-  const { errors, handleClickPost, loading, register } = usePractice02();
+  const { handleSubmit, reset, register,formState:{ errors },} = useForm<FormInput>({
+    resolver: zodResolver(schema),
+    defaultValues: DEFAULT_FROM_INPUT,
+    mode: 'onChange',
+  });
+
+  const {  } = register('name');
+  // const { errors, handleClickPost, loading, register } = usePractice02();
   return (
     <Container maxWidth="max-w-4xl">
       <div className="mb-3 mt-8">
@@ -65,7 +79,7 @@ const Page: NextPage = () => {
         )}
       </div>
 
-      <Button onClick={handleClickPost} label="送信" variant="primary" loading={loading} />
+      <Button label="送信" variant="primary" loading={false} />
     </Container>
   );
 };
