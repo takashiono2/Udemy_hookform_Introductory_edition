@@ -23,12 +23,16 @@ const DEFAULT_FROM_INPUT: FormInput = {
 const Page: NextPage = () => {
   const { handleSubmit, reset, register,formState:{ errors },} = useForm<FormInput>({
     resolver: zodResolver(schema),
-    defaultValues: DEFAULT_FROM_INPUT,
-    mode: 'onChange',
+    defaultValues: DEFAULT_FROM_INPUT, //フォームの初期値を設定
+    // mode: 'onChange',
   });
 
   const {  } = register('name');
-  // const { errors, handleClickPost, loading, register } = usePractice02();
+
+  const onSubmit = (data: FormInput) =>{
+    const { name, email, password } = data;
+  }
+  //送信時に実行される関数を処理
   return (
     <Container maxWidth="max-w-4xl">
       <div className="mb-3 mt-8">
@@ -79,7 +83,7 @@ const Page: NextPage = () => {
         )}
       </div>
 
-      <Button label="送信" variant="primary" loading={false} />
+      <Button onClick={ handleSubmit(onSubmit) } label="送信" variant="primary" loading={false} />
     </Container>
   );
 };
