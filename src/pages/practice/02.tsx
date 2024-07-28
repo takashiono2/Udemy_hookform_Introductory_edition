@@ -1,10 +1,12 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { NextPage } from 'next';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
 import Button from '@/components/common/parts/Button';
 import Container from '@/components/common/parts/Container';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { httpClient } from '@/lib/api/apibase';
 
 const schema = z.object({
   name: z.string().min(1, '名前を入力してください').max(50, '50文字以内で入力してください'),
@@ -21,18 +23,42 @@ const DEFAULT_FROM_INPUT: FormInput = {
 };
 
 const Page: NextPage = () => {
-  const { handleSubmit, reset, register,formState:{ errors },} = useForm<FormInput>({
+  const [loading, setLoading] = useState<boolean>(false);
+  const { handleSubmit ,reset, register, formState:{ errors } } = useForm<FormInput>({
     resolver: zodResolver(schema),
     defaultValues: DEFAULT_FROM_INPUT, //フォームの初期値を設定
     // mode: 'onChange',
   });
 
-  const {  } = register('name');
-
-  const onSubmit = (data: FormInput) =>{
+  const onSubmit = async(data: FormInput) =>{
     const { name, email, password } = data;
-  }
-  //送信時に実行される関数を処理
+    let isSuccess = true;
+    setLoading(true);
+    try{
+      await httpClient({
+        method: 'post',
+        url: 'api/form/01',
+        data:{
+          name,
+          email,
+          password,
+        },
+        headers: {
+          'Content-type': 'application/json',
+        }
+      });
+    }catch(error){
+      window.alert('送信が失敗しました');
+      isSuccess = false;
+    }
+    setLoading(false);
+
+    if(isSuccess){
+      window.alert('送信が失敗しました');
+      reset();
+    }
+  };
+
   return (
     <Container maxWidth="max-w-4xl">
       <div className="mb-3 mt-8">
@@ -42,7 +68,7 @@ const Page: NextPage = () => {
           type="text"
           placeholder="名前"
           className={`w-full rounded border px-4 py-2 text-input outline-none placeholder:text-theme-light focus:border-primary ${errors['name'] ? 'border-error' : 'border-theme-medium'}`}
-          {...register('name')}
+          { ...register('name') }
         />
         {errors['name'] && (
           <div className="mt-1 text-body3 text-error">
@@ -58,7 +84,7 @@ const Page: NextPage = () => {
           type="text"
           placeholder="メールアドレス"
           className={`w-full rounded border px-4 py-2 text-input outline-none placeholder:text-theme-light focus:border-primary ${errors['email'] ? 'border-error' : 'border-theme-medium'}`}
-          {...register('email')}
+          { ...register('email') }
         />
         {errors['email'] && (
           <div className="mt-1 text-body3 text-error">
@@ -74,7 +100,7 @@ const Page: NextPage = () => {
           type="text"
           placeholder="パスワード"
           className={`w-full rounded border px-4 py-2 text-input outline-none placeholder:text-theme-light focus:border-primary ${errors['password'] ? 'border-error' : 'border-theme-medium'}`}
-          {...register('password')}
+          { ...register('password') }
         />
         {errors['password'] && (
           <div className="mt-1 text-body3 text-error">
@@ -83,7 +109,7 @@ const Page: NextPage = () => {
         )}
       </div>
 
-      <Button onClick={ handleSubmit(onSubmit) } label="送信" variant="primary" loading={false} />
+      <Button onClick={ handleSubmit(onSubmit) } label="送信" variant="primary" loading={loading} />
     </Container>
   );
 };
